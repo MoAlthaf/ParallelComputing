@@ -1,2 +1,2 @@
-# ParallelComputing
-This repository is for DSAI3202 Parallel & Distributed Computing Course.
+# Lab 3 Part 2
+We are building parallel program to enhance the training of a machine learning model.
