@@ -49,7 +49,7 @@ def update_display():
         print("\n")
         for sensor_id in latest_temperatures:
             avg_temp = temperature_averages.get(sensor_id, "--")
-            print(f"Sensor {sensor_id} Average: {' ' * 50} {avg_temp:.2f}°C")
+            print(f"Sensor {sensor_id} Average: {' ' * 50} {avg_temp:}°C")
 
 def main(sensor_count=3):
     initialize_display(sensor_count)
