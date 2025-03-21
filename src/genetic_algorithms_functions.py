@@ -16,29 +16,19 @@ def calculate_fitness(route,
     """
     total_distance = 0
     
-    # Calculate distance for the route
+    
     for i in range(len(route) - 1):
-        current_node = route[i]
-        next_node = route[i + 1]
-        distance = distance_matrix[current_node][next_node]
+        node1 = route[i]
+        node2 = route[i + 1]
+        distance = distance_matrix[node1, node2]
         
-        # Check if the route is infeasible
-        if distance >= 100000:
-            return 1e6  # Large positive penalty for infeasible route
+        
+        if distance == 100000:
+            return -1000000  
         
         total_distance += distance
-    
-    # Return to depot (node 0) at the end
-    last_node = route[-1]
-    distance_back = distance_matrix[last_node][0]
-    
-    # Check if return to depot is infeasible
-    if distance_back >= 100000:
-        return 1e6  # Large positive penalty for infeasible route
-    
-    total_distance += distance_back
-    
-    return total_distance
+
+    return -total_distance  
 
 
 def select_in_tournament(population,
