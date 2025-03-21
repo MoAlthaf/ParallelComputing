@@ -1,27 +1,54 @@
-import time
-from src.square_program import run_benchmark
-from src.connection_pool import run_simulation
+import os
+import math
+from time import perf_counter
+from concurrent.futures import ProcessPoolExecutor
+import multiprocessing as mp
+import random
+from src.square_program import square
+from src.connection_pool import ConnectionPool, access_database
 
-def main():
-    """Main entry point for the assignment."""
-    print("DSAI 3202 - Parallel and Distributed Computing - Assignment 1")
-    print("=" * 60)
+# Configuration parameters
+DATA_SIZE = 10**6 * 10
+INPUT_RANGE = (1, 100)
+WORKER_COUNT = os.cpu_count() or 4
+
+# Data generation
+input_values = [random.randrange(*INPUT_RANGE) for _ in range(DATA_SIZE)]
+
+def linear_execution():
+    start = perf_counter()
+    output = [square(x) for x in input_values]
+    duration = perf_counter() - start
+    print(f"Linear execution duration: {duration:.3f}s")
+
+def parallel_map_processing():
+    start = perf_counter()
+    with mp.Pool(processes=WORKER_COUNT) as workers:
+        result = workers.map(square, input_values)
+    duration = perf_counter() - start
+    print(f"Parallel mapping duration: {duration:.3f}s")
+
+def future_based_processing():
+    start = perf_counter()
+    with ProcessPoolExecutor(max_workers=WORKER_COUNT) as executor:
+        result = list(executor.map(square, input_values))
+    duration = perf_counter() - start
+    print(f"Futures-based processing time: {duration:.3f}s")
+
+def execute():
+    print("Performance benchmarking:")
+    for func in [linear_execution, parallel_map_processing, future_based_processing]:
+        func()
     
-    # Part 3: Square Program
-    print("\nPart 3: Square Program")
-    print("-" * 30)
+    print("\nDatabase connection stress test")
+    connection_manager = ConnectionPool(capacity=4)
+    workers = [mp.Process(target=access_database, args=(connection_manager,)) 
+              for _ in range(8)]
     
-    # Run benchmarks with 10^6 and 10^7 numbers
-    run_benchmark(10**6)
-    run_benchmark(10**7)
-    
-    # Part 4: Process Synchronization with Semaphores
-    print("\nPart 4: Process Synchronization with Semaphores")
-    print("-" * 50)
-    
-    # Run simulation with different numbers of processes and pool sizes
-    run_simulation(num_processes=10, pool_size=3)
-    run_simulation(num_processes=5, pool_size=2)
+    for w in workers:
+        w.start()
+    for w in workers:
+        w.join()
 
 if __name__ == "__main__":
-    main()
+    execute()
