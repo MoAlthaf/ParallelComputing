@@ -10,7 +10,7 @@ def main():
     rank = comm.Get_rank()
     size = comm.Get_size()
 
-    N = int(2e8)  
+    N = int(3.5e8)  
 
     chunk_size = N // size
     start = rank * chunk_size + 1
